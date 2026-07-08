@@ -1,4 +1,5 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { Type } from "@google/genai";
+import { getAiClient } from "./ai-client.service.js";
 import { buildCrmExtractionPrompt } from "../prompts/crm.prompt.js";
 import {
   crmRecordSchema,
@@ -11,17 +12,7 @@ import { normalizeCrmRecord } from "./crm-normalizer.service.js";
 const BATCH_SIZE = 20;
 const MAX_RETRIES = 2;
 
-const getAiClient = (): GoogleGenAI => {
-  const apiKey = process.env.GEMINI_API_KEY;
 
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not configured");
-  }
-
-  return new GoogleGenAI({
-    apiKey,
-  });
-};
 const responseSchema = {
   type: Type.OBJECT,
   properties: {
