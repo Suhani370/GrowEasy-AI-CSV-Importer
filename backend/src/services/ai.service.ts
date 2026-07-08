@@ -59,7 +59,7 @@ const responseSchema = {
   },
   required: ["records"],
 };
-const processBatch = async (
+export const processBatch = async (
   batch: CsvRecord[],
   attempt = 0
 ): Promise<CrmRecord[]> => {
