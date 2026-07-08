@@ -1,13 +1,12 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { buildCrmExtractionPrompt } from "../prompts/crm.prompt.js";
 import {
-  allowedCrmStatuses,
-  allowedDataSources,
   crmRecordSchema,
   type CrmRecord,
   type ImportResult,
 } from "../types/crm.types.js";
 import type { CsvRecord } from "./csv.service.js";
+import { normalizeCrmRecord } from "./crm-normalizer.service.js";
 
 const BATCH_SIZE = 20;
 const MAX_RETRIES = 2;
@@ -23,7 +22,6 @@ const getAiClient = (): GoogleGenAI => {
     apiKey,
   });
 };
-
 const responseSchema = {
   type: Type.OBJECT,
   properties: {
@@ -70,34 +68,6 @@ const responseSchema = {
   },
   required: ["records"],
 };
-
-const normalizeRecord = (record: CrmRecord): CrmRecord => {
-  const normalizedStatus = allowedCrmStatuses.includes(
-    record.crm_status as (typeof allowedCrmStatuses)[number]
-  )
-    ? record.crm_status
-    : "";
-
-  const normalizedDataSource = allowedDataSources.includes(
-    record.data_source as (typeof allowedDataSources)[number]
-  )
-    ? record.data_source
-    : "";
-
-  const normalizedDate =
-    record.created_at &&
-    !Number.isNaN(new Date(record.created_at).getTime())
-      ? record.created_at
-      : "";
-
-  return {
-    ...record,
-    crm_status: normalizedStatus,
-    data_source: normalizedDataSource,
-    created_at: normalizedDate,
-  };
-};
-
 const processBatch = async (
   batch: CsvRecord[],
   attempt = 0
@@ -136,7 +106,7 @@ const processBatch = async (
     return parsed.records.map((record) => {
       const validatedRecord = crmRecordSchema.parse(record);
 
-      return normalizeRecord(validatedRecord);
+      return normalizeCrmRecord(validatedRecord);
     });
   } catch (error) {
     if (attempt < MAX_RETRIES) {
@@ -150,7 +120,6 @@ const processBatch = async (
     throw error;
   }
 };
-
 export const extractCrmRecords = async (
   records: CsvRecord[]
 ): Promise<ImportResult> => {
