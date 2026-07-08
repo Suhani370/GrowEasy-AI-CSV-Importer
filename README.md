@@ -4,6 +4,12 @@ An AI-powered CSV importer that intelligently transforms CSV files with arbitrar
 
 The application allows users to upload and preview a CSV file before confirming the import. After confirmation, the backend processes records in batches using Gemini AI, validates the structured output, normalizes CRM fields, and skips records without an email address or mobile number.
 
+## Live Deployment
+
+- Live Application: https://groweasy-ai-csv-importer-frontend-ls99.onrender.com
+- Backend API: https://groweasy-ai-csv-importer-ntbu.onrender.com
+- API Health Check: https://groweasy-ai-csv-importer-ntbu.onrender.com/api/health
+
 ## Features
 
 - Drag-and-drop CSV upload
