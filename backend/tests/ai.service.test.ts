@@ -123,4 +123,60 @@ describe("processBatch", () => {
 
   expect(generateContentMock).toHaveBeenCalledTimes(3);
 });
+it("throws when AI returns an empty response", async () => {
+  const batch = [
+    {
+      FullName: "Suhani",
+      Email: "suhani@example.com",
+    },
+  ];
+
+  generateContentMock.mockResolvedValue({
+    text: "",
+  });
+
+  await expect(processBatch(batch)).rejects.toThrow(
+    "AI returned an empty response"
+  );
+
+  expect(generateContentMock).toHaveBeenCalledTimes(3);
+});
+
+it("throws when AI returns malformed JSON", async () => {
+  const batch = [
+    {
+      FullName: "Suhani",
+      Email: "suhani@example.com",
+    },
+  ];
+
+  generateContentMock.mockResolvedValue({
+    text: "{ invalid json }",
+  });
+
+  await expect(processBatch(batch)).rejects.toThrow();
+
+  expect(generateContentMock).toHaveBeenCalledTimes(3);
+});
+
+it("throws when AI returns wrong record count", async () => {
+  const batch = [
+    {
+      FullName: "Suhani",
+      Email: "suhani@example.com",
+    },
+  ];
+
+  generateContentMock.mockResolvedValue({
+    text: JSON.stringify({
+      records: [],
+    }),
+  });
+
+  await expect(processBatch(batch)).rejects.toThrow(
+    "AI returned 0 records for a batch of 1"
+  );
+
+  expect(generateContentMock).toHaveBeenCalledTimes(3);
+});
 });
